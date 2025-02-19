@@ -1,0 +1,48 @@
+{
+  "name": "libri",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start",
+    "lint": "eslint app && prettier --check app",
+    "lint:eslint": "eslint app",
+    "lint:prettier": "prettier --check app",
+    "lint:fix": "eslint app --fix && prettier --write app",
+    "clean": "rm -rf .output .vinxi",
+    "clean:db": "rm -rf database.db database.db-shm database.db-wal",
+    "clean:all": "rm -rf .output .vinxi database.db database.db-shm database.db-wal"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "@faker-js/faker": "^9.5.0",
+    "@tanstack/react-query": "^5.66.7",
+    "@tanstack/react-router": "^1.106.0",
+    "@tanstack/react-router-with-query": "^1.106.0",
+    "@tanstack/start": "^1.107.0",
+    "better-sqlite3": "^11.8.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "vinxi": "^0.5.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@tanstack/eslint-plugin-query": "^5.66.1",
+    "@tanstack/eslint-plugin-router": "^1.105.0",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.20.1",
+    "eslint-plugin-react": "^7.37.4",
+    "globals": "^15.15.0",
+    "prettier": "^3.5.1",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.24.1",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
