@@ -1,3 +1,4 @@
+import './index.css'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { Suspense } from 'react'
@@ -30,13 +31,16 @@ export function Books() {
     <>
       <button onClick={handleClick}>Refresh books</button>
       <Suspense fallback='Loading books...'>
-        <ul>
+        <ul className='books'>
           {books.map((book) => (
-            <li key={book.id}>
+            <li className='book' key={book.id}>
               <Link to={`/books/$id`} params={{ id: book.id.toString() }}>
-                {book.title}
+                <img src='dummy.png' alt='' width='150px' height='200px' />
+                <span className='title'>{book.title}</span>
               </Link>{' '}
-              by {book.author}
+              <span className='author'>
+                <a href='#'>{book.author}</a>
+              </span>
             </li>
           ))}
         </ul>
