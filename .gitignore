@@ -2,3 +2,4 @@
 .vinxi/
 node_modules/
 database.db*
+demo.*
