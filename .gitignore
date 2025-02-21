@@ -1,5 +1,10 @@
 .output/
 .vinxi/
 node_modules/
+
+# TODO: remove these
+# these are files for testing
 database.db*
 demo.*
+*cover*.jpg
+test.xml
