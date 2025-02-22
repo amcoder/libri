@@ -2,10 +2,4 @@
 .vinxi/
 node_modules/
 coverage/
-
-# TODO: remove these
-# these are files for testing
-database.db*
-demo.*
-*cover*.jpg
-test.xml
+data/

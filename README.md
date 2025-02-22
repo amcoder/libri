@@ -24,6 +24,15 @@ docker build -t libri .
 docker run -p 3000:3000 libri
 ```
 
+## Configuration
+
+The application uses the following environment variables:
+
+- `LIBRE_DATA_DIR`: The directory to store application data. _(default: `./data`)_
+- `LIBRE_COVER_DIR`: The directory to store cover images. _(default: `./$LIBRE_DATA_DIR/covers`)_
+- `LIBRE_BOOK_DIR`: The directory to store epub files. _(default: `./$LIBRE_DATA_DIR/books`)_
+- `PORT`: The port to listen on. _(default: 3000)_
+
 ## Goals
 
 The goal of this project is to provide a simple intuitive interface for managing your books.

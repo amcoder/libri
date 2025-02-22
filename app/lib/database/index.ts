@@ -1,7 +1,8 @@
 import Database from 'better-sqlite3'
 import { createFakeData } from '~/lib/fake-data'
+import config from '~/config'
 
-export const db = new Database('database.db')
+export const db = new Database(`${config.dataDir}/libri.db`)
 db.pragma('journal_mode = WAL')
 
 migrateDatabase()
