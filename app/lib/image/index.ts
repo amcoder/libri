@@ -19,17 +19,16 @@ export function imageMetadata(buffer: Buffer): ImageMetadata | null {
     return headerHex === buffer.subarray(0, header.length).toString('hex')
   }
 
-  if (hasHeader('GIF8')) {
-    return { mediaType: 'image/gif', extension: 'gif' }
-  } else if (hasHeader('\x89PNG')) {
-    return { mediaType: 'image/png', extension: 'png' }
-  } else if (hasHeader('\xFF\xD8\xFF')) {
-    return { mediaType: 'image/jpeg', extension: 'jpg' }
-  } else if (hasHeader('RIFF')) {
-    return { mediaType: 'image/tiff', extension: 'tiff' }
-  } else if (hasHeader('BM')) {
-    return { mediaType: 'image/bmp', extension: 'bmp' }
-  } else {
-    return null
+  const headerLookup = {
+    '\x89PNG': { mediaType: 'image/png', extension: 'png' },
+    '\xFF\xD8\xFF': { mediaType: 'image/jpeg', extension: 'jpg' },
   }
+
+  for (const [header, metadata] of Object.entries(headerLookup)) {
+    if (hasHeader(header)) {
+      return metadata
+    }
+  }
+
+  return null
 }
