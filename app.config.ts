@@ -1,14 +1,8 @@
 import { defineConfig } from '@tanstack/start/config'
-import tsConfigPaths from 'vite-tsconfig-paths'
+import vite from './vite.config'
 
 export default defineConfig({
-  vite: {
-    plugins: [
-      tsConfigPaths({
-        projects: ['./tsconfig.json'],
-      }),
-    ],
-  },
+  vite,
   server: {
     esbuild: {
       options: {

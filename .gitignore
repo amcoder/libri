@@ -1,6 +1,7 @@
 .output/
 .vinxi/
 node_modules/
+coverage/
 
 # TODO: remove these
 # these are files for testing
