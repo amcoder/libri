@@ -1,8 +1,9 @@
 import './index.css'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { Suspense } from 'react'
 import { LibriApi } from '~/lib/api'
+import { BookSummary } from '~/components/books/book-summary'
 
 const booksQueryOptions = (api: LibriApi) =>
   queryOptions({
@@ -33,15 +34,7 @@ export function Books() {
       <Suspense fallback='Loading books...'>
         <ul className='books'>
           {books.map((book) => (
-            <li className='book' key={book.id}>
-              <Link to={`/books/$id`} params={{ id: book.id.toString() }}>
-                <img src='cover.jpg' alt='' width='150px' height='200px' />
-                <span className='title'>{book.title}</span>
-              </Link>{' '}
-              <span className='author'>
-                <a href='#'>{book.author}</a>
-              </span>
-            </li>
+            <BookSummary book={book} key={book.id} />
           ))}
         </ul>
       </Suspense>
