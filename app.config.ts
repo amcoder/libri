@@ -12,4 +12,7 @@ export default defineConfig({
       },
     },
   },
+  tsr: {
+    routeFileIgnorePattern: '\\.test\\.tsx?',
+  },
 })
