@@ -1,9 +1,9 @@
-import { defineEventHandler } from 'h3'
+import { eventHandler } from 'h3'
 
 export type ApiFileRoute = Partial<
   Record<
     'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'head' | 'use',
-    ReturnType<typeof defineEventHandler>
+    ReturnType<typeof eventHandler>
   >
 >
 

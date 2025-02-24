@@ -1,5 +1,5 @@
 import {
-  defineEventHandler,
+  eventHandler,
   createRouter,
   createError,
   Router,
@@ -10,71 +10,78 @@ import { createLibriApi } from '~/lib/api'
 import { ApiFileRoute } from '~/lib/routing'
 import vinxiFileRoutes from 'vinxi/routes'
 
+// This is the interface for the objects that vinxi uses to represent API
+// routes discovered in the file system.
+// TODO: I believe this is configured by tanstack. Find out how to change this config.
 interface VinxiApiFileRoute {
-  path: string // this path adheres to the h3 router path format
-  filePath: string // this is the file path on the system
+  path: string
+  filePath: string
   $APIRoute?: {
-    src: string // this is the path to the source file
+    src: string
     import: () => Promise<{
       APIRoute: ApiFileRoute
     }>
   }
 }
 
+// Get the list of API routes discovered by vinxi
 const apiRoutes = (
   vinxiFileRoutes as unknown[] as Array<VinxiApiFileRoute>
 ).filter((route) => route['$APIRoute'])
 
+// Convert a vinxi path to an h3 path
+function toH3Path(path: string) {
+  return (
+    '/' +
+    path
+      .split('/')
+      .map((p) => {
+        if (p === 'api') return ''
+        if (p === '*splat') return '*'
+        if (p.startsWith(':$') && p.endsWith('?')) return `:${p.slice(2, -1)}`
+        return p
+      })
+      .filter(Boolean)
+      .join('/')
+  )
+}
+
+// Convert the list of API routes to an h3 router
 async function toH3Router(routes: VinxiApiFileRoute[]): Promise<Router> {
-  const h3Routes = (
+  return (
     await Promise.all(
       routes.map(async (route) => {
-        const path =
-          '/' +
-          route.path
-            .split('/')
-            .map((p) => {
-              if (p === 'api') return ''
-              if (p === '*splat') return '*'
-              if (p.startsWith(':$') && p.endsWith('?'))
-                return `:${p.slice(2, -1)}`
-              return p
-            })
-            .filter(Boolean)
-            .join('/')
+        const path = toH3Path(route.path)
 
         const apiRoute = (await route.$APIRoute?.import())?.APIRoute
         if (!apiRoute) {
           return []
         }
 
-        return Object.entries(apiRoute).map(([method, handler]) => {
-          return {
-            path,
-            method,
-            handler,
-          }
-        })
+        return Object.entries(apiRoute).map(([method, handler]) => ({
+          path,
+          method,
+          handler,
+        }))
       }),
     )
-  ).flat()
-
-  h3Routes.sort((a, b) => b.path.localeCompare(a.path))
-
-  return h3Routes.reduce((router, route) => {
-    console.log('adding route', route)
-    return router[route.method](route.path, route.handler)
-  }, createRouter())
+  )
+    .flat()
+    .toSorted((a, b) => b.path.localeCompare(a.path))
+    .reduce(
+      (router, { method, path, handler }) => router[method](path, handler),
+      createRouter(),
+    )
 }
 
 let router: Router
-export default defineEventHandler(async (event) => {
+export default eventHandler(async (event) => {
   try {
     if (!router) {
       router = await toH3Router(apiRoutes)
       router.use(
         '/**',
-        defineEventHandler(() => {
+        eventHandler(() => {
           throw createError({ status: 404, message: 'Not found' })
         }),
       )

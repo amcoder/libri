@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import { createApiFileRoute } from '~/lib/routing'
-import { defineEventHandler, getValidatedRouterParams, createError } from 'h3'
+import { eventHandler, getValidatedRouterParams, createError } from 'h3'
 
 export const APIRoute = createApiFileRoute({
-  get: defineEventHandler(async (event) => {
+  get: eventHandler(async (event) => {
     const paramSchema = z.object({ id: z.coerce.number().int() })
     const { id } = await getValidatedRouterParams(event, paramSchema.parse)
 

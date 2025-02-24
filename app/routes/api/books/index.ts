@@ -1,8 +1,8 @@
 import { createApiFileRoute } from '~/lib/routing'
-import { defineEventHandler } from 'h3'
+import { eventHandler } from 'h3'
 
 export const APIRoute = createApiFileRoute({
-  get: defineEventHandler(async (event) => {
+  get: eventHandler(async (event) => {
     const books = await event.context.api.getBooks()
     return books
   }),
