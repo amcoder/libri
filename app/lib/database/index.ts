@@ -1,6 +1,6 @@
 import path from 'path'
 import SqliteDatabase, { Database } from 'better-sqlite3'
-import { createFakeData } from '~/lib/fake-data'
+import { createFakeData } from './fake-data'
 
 export function openDatabase(dataDir: string) {
   const dbFile = path.join(dataDir, 'libri.db')

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { Book } from './types'
+import { Book } from '~/lib/types'
 import { Database } from 'better-sqlite3'
 
 export function createFakeData(db: Database) {
