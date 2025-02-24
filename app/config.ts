@@ -1,23 +1,23 @@
 import fs from 'fs'
 
 type Config = {
-  dataDir?: string
-  coverDir?: string
-  bookDir?: string
+  dataDir: string
+  coverDir: string
+  bookDir: string
 }
 
-let config: Config = {}
+export function loadConfig(): Config | null {
+  if (import.meta.env.SSR) {
+    const dataDir = import.meta.env.LIBRE_DATA_DIR ?? './data'
+    const coverDir = import.meta.env.LIBRE_COVER_DIR ?? `${dataDir}/covers`
+    const bookDir = import.meta.env.LIBRE_BOOK_DIR ?? `${dataDir}/books`
 
-if (import.meta.env.SSR) {
-  const dataDir = import.meta.env.LIBRE_DATA_DIR ?? './data'
-  const coverDir = import.meta.env.LIBRE_COVER_DIR ?? `${dataDir}/covers`
-  const bookDir = import.meta.env.LIBRE_BOOK_DIR ?? `${dataDir}/books`
+    fs.mkdirSync(dataDir, { recursive: true })
+    fs.mkdirSync(coverDir, { recursive: true })
+    fs.mkdirSync(bookDir, { recursive: true })
 
-  fs.mkdirSync(dataDir, { recursive: true })
-  fs.mkdirSync(coverDir, { recursive: true })
-  fs.mkdirSync(bookDir, { recursive: true })
-
-  config = { dataDir, coverDir, bookDir }
+    return { dataDir, coverDir, bookDir }
+  } else {
+    return null
+  }
 }
-
-export default config

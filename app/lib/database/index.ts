@@ -1,15 +1,21 @@
-import Database from 'better-sqlite3'
+import path from 'path'
+import SqliteDatabase, { Database } from 'better-sqlite3'
 import { createFakeData } from '~/lib/fake-data'
-import config from '~/config'
 
-export const db = new Database(`${config.dataDir}/libri.db`)
-db.pragma('journal_mode = WAL')
+export function openDatabase(dataDir: string) {
+  const dbFile = path.join(dataDir, 'libri.db')
 
-migrateDatabase()
-createFakeData(db)
+  const db = new SqliteDatabase(dbFile)
+  db.pragma('journal_mode = WAL')
 
-function migrateDatabase() {
-  const lastMigration = isDatabaseEmpty() ? 0 : getLastMigration()
+  migrateDatabase(db)
+  createFakeData(db)
+
+  return db
+}
+
+function migrateDatabase(db: Database) {
+  const lastMigration = isDatabaseEmpty(db) ? 0 : getLastMigration(db)
   const migrations = getMigrations()
 
   for (const { number, name, sql } of migrations) {
@@ -24,7 +30,7 @@ function migrateDatabase() {
   }
 }
 
-function isDatabaseEmpty() {
+function isDatabaseEmpty(db: Database) {
   const checkStatement = db.prepare(`
     SELECT COUNT(*)
     FROM sqlite_master
@@ -33,7 +39,7 @@ function isDatabaseEmpty() {
   return checkStatement.pluck().get() === 0
 }
 
-function getLastMigration() {
+function getLastMigration(db: Database) {
   return (
     (db
       .prepare(`SELECT number FROM migration ORDER BY createdAt DESC LIMIT 1`)
