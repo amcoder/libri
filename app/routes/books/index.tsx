@@ -24,7 +24,6 @@ export function Books() {
   const { data: books, refetch } = useSuspenseQuery(booksQueryOptions(api))
 
   const handleClick = () => {
-    console.log('refetch')
     refetch()
   }
 
