@@ -12,9 +12,6 @@ type DublinCoreProperty = {
   id?: string
   name: string
   value: string
-  /**
-   * @property A collection of meta properties that modify this item
-   */
   properties: MetaProperties
 }
 
@@ -176,8 +173,6 @@ export class Epub {
       // validate the image
       const meta = getImageMetadata(value)
       if (!meta) throw new Error('Cover image is not an image')
-      if (!['image/jpeg', 'image/png'].includes(meta.mediaType))
-        throw new Error('Cover image is not a jpeg or png')
     }
     this.coverImageBuffer = value
     this.coverImageDirty = true
