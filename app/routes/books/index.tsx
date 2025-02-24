@@ -8,7 +8,7 @@ const booksQueryOptions = (api: LibriApi) =>
   queryOptions({
     queryKey: ['books'],
     queryFn: api.getBooks,
-    staleTime: Infinity,
+    staleTime: 1000 * 60,
   })
 
 export const Route = createFileRoute('/books/')({
