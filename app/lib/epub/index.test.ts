@@ -28,9 +28,7 @@ describe('Base', () => {
       expect(book.version).to.eq('3.0')
       expect(book.title.displayValue).to.eq('Trees')
       expect(book.properties['test-property'].value).to.eq('test value')
-      console.dir(book.properties, { depth: null })
       book.properties['cover']
-      console.dir(book.properties, { depth: null })
       expect(book.coverImage).not.to.be.null
     })
 
