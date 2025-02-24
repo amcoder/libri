@@ -1,10 +1,9 @@
-import { json } from '@tanstack/start'
-import { createAPIFileRoute } from '@tanstack/start/api'
-import * as api from '~/lib/api/api-database'
+import { createApiFileRoute } from '~/lib/routing'
+import { defineEventHandler } from 'h3'
 
-export const APIRoute = createAPIFileRoute('/api/books')({
-  GET: async () => {
-    const books = await api.getBooks()
-    return json(books)
-  },
+export const APIRoute = createApiFileRoute({
+  get: defineEventHandler(async (event) => {
+    const books = await event.context.api.getBooks()
+    return books
+  }),
 })
