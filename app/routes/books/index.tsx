@@ -35,7 +35,7 @@ export function Books() {
           {books.map((book) => (
             <li className='book' key={book.id}>
               <Link to={`/books/$id`} params={{ id: book.id.toString() }}>
-                <img src='dummy.png' alt='' width='150px' height='200px' />
+                <img src='cover.jpg' alt='' width='150px' height='200px' />
                 <span className='title'>{book.title}</span>
               </Link>{' '}
               <span className='author'>
