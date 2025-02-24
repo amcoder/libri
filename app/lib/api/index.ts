@@ -19,6 +19,6 @@ export async function createLibriApi(): Promise<LibriApi> {
   }
 }
 
-export function getApi(event: H3Event<EventHandlerRequest>) {
+export function getApi(event: H3Event<EventHandlerRequest>): LibriApi {
   return event.context.api
 }

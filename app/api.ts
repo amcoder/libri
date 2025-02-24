@@ -19,7 +19,7 @@ interface VinxiApiFileRoute {
   $APIRoute?: {
     src: string
     import: () => Promise<{
-      APIRoute: ApiFileRoute
+      APIRoute: ApiFileRoute<unknown>
     }>
   }
 }
