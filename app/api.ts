@@ -74,6 +74,8 @@ async function toH3Router(routes: VinxiApiFileRoute[]): Promise<Router> {
     )
 }
 
+const api = await createLibriApi()
+
 let router: Router
 export default eventHandler(async (event) => {
   try {
@@ -87,7 +89,7 @@ export default eventHandler(async (event) => {
       )
     }
 
-    event.context.api = await createLibriApi()
+    event.context.api = api
     return await router.handler(event)
   } catch (error) {
     if (error instanceof H3Error) {
