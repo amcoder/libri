@@ -8,8 +8,6 @@ export function createFakeData(db: Database) {
     .pluck()
     .get() as number
 
-  console.log(`Found ${bookCount} books in database`)
-
   if (bookCount > 0) {
     return
   }
