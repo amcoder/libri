@@ -1,3 +1,4 @@
+import { EventHandlerRequest, H3Event } from 'vinxi/http'
 import { loadConfig } from '~/config'
 import { Book } from '~/lib/types'
 
@@ -16,4 +17,8 @@ export async function createLibriApi(): Promise<LibriApi> {
   } else {
     return await import('./api-web')
   }
+}
+
+export function getApi(event: H3Event<EventHandlerRequest>) {
+  return event.context.api
 }
