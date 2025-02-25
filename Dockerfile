@@ -2,7 +2,7 @@ FROM node:22-alpine AS builder
 
 WORKDIR /build
 
-COPY package*.json tsconfig.json app.config.ts ./
+COPY package*.json tsconfig.json app.config.ts vite.config.ts ./
 COPY app ./app
 
 RUN npm install
