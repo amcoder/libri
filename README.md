@@ -2,6 +2,8 @@
 
 A simple web app to manage your books.
 
+![build status](https://github.com/amcoder/libri/actions/workflows/ci.yml/badge.svg)
+
 ## Getting Started
 
 ### Development
