@@ -24,11 +24,6 @@ interface VinxiApiFileRoute {
   }
 }
 
-// Get the list of API routes discovered by vinxi
-const apiRoutes = (
-  vinxiFileRoutes as unknown[] as Array<VinxiApiFileRoute>
-).filter((route) => route['$APIRoute'])
-
 // Convert a vinxi path to an h3 path
 function toH3Path(path: string) {
   return (
@@ -74,26 +69,36 @@ async function toH3Router(routes: VinxiApiFileRoute[]): Promise<Router> {
     )
 }
 
+async function createH3Router() {
+  // Get the list of API routes discovered by vinxi
+  const apiRoutes = (
+    vinxiFileRoutes as unknown[] as Array<VinxiApiFileRoute>
+  ).filter((route) => route['$APIRoute'])
+
+  const router = await toH3Router(apiRoutes)
+  router.use(
+    '/**',
+    eventHandler(() => {
+      throw createError({ status: 404, message: 'Not found' })
+    }),
+  )
+  return router
+}
+
 const api = await createLibriApi()
 
 let router: Router
 export default eventHandler(async (event) => {
   try {
     if (!router) {
-      router = await toH3Router(apiRoutes)
-      router.use(
-        '/**',
-        eventHandler(() => {
-          throw createError({ status: 404, message: 'Not found' })
-        }),
-      )
+      router = await createH3Router()
     }
 
     event.context.api = api
     return await router.handler(event)
   } catch (error) {
     if (error instanceof H3Error) {
-      setResponseStatus(event, 404)
+      setResponseStatus(event, error.statusCode)
       return error.cause
     } else {
       setResponseStatus(event, 500)
