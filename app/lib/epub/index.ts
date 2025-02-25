@@ -89,12 +89,37 @@ export class Epub {
     return query.version(this.opf)
   }
 
+  /** get the unique identifier */
+  get uniqueIdentifier(): string | null {
+    const id = query.uniqueIdentifier(this.opf)
+    if (!id) return null
+
+    return this.identifiers.find((i) => i.id === id)?.value ?? null
+  }
+
+  /** Get the identifiers */
+  get identifiers(): DublinCoreProperty[] {
+    return this.getDublinCoreProperties('identifier')
+  }
+
   /** Get the epub title */
   get title(): Title {
     const parts = this.getDublinCoreProperties('title')
-    const displayValue = parts.map((p) => p.value).join(': ')
+    const displayValue = parts
+      .toSorted(
+        (a, b) =>
+          +(a.properties['display-seq']?.value ?? '0') -
+          +(b.properties['display-seq']?.value ?? '0'),
+      )
+      .map((p) => p.value)
+      .join(': ')
     const sortValue = parts
-      .map((p) => p.properties['file-as']?.value)
+      .toSorted(
+        (a, b) =>
+          +(a.properties['display-seq']?.value ?? '0') -
+          +(b.properties['display-seq']?.value ?? '0'),
+      )
+      .map((p) => p.properties['file-as']?.value ?? p.value)
       .filter((v) => v)
       .join(': ')
 
@@ -135,6 +160,62 @@ export class Epub {
     // update opf document
     this.removeDublicCoreProperties('title')
     this.addDublinCoreProperties(props)
+  }
+
+  /** get the authors */
+  get authors(): string[] {
+    return this.creators
+      .filter((c) => c.properties['role'].value === 'aut')
+      .map((c) => c.value)
+  }
+
+  /** get the creators */
+  get creators(): DublinCoreProperty[] {
+    return this.getDublinCoreProperties('creator')
+  }
+
+  /** get the contributors */
+  get contributors(): DublinCoreProperty[] {
+    return this.getDublinCoreProperties('contributor')
+  }
+
+  /** get the publication date */
+  get publicationDate(): Date | null {
+    const value = this.getDublinCoreProperties('date')[0]?.value ?? null
+    if (!value) return null
+
+    return new Date(value)
+  }
+
+  /** get the publisher */
+  get publisher(): string | null {
+    const value = this.getDublinCoreProperties('publisher')[0]?.value ?? null
+    if (!value) return null
+
+    return value
+  }
+
+  /** get the description */
+  get description(): string | null {
+    const value = this.getDublinCoreProperties('description')[0]?.value ?? null
+    if (!value) return null
+
+    return value
+  }
+
+  /** get the languages */
+  get languages(): DublinCoreProperty[] {
+    return this.getDublinCoreProperties('language')
+  }
+
+  /** get the primary language */
+  get primaryLanguage(): string | null {
+    return this.languages[0]?.value
+  }
+
+  /** get the subjects */
+  get subjects(): DublinCoreProperty[] {
+    return this.getDublinCoreProperties('subject')
   }
 
   /** Get the epub metadata properties */
@@ -478,6 +559,11 @@ const query = {
   // get the epub version
   version: createQuery1<string>('string(/opf:package/@version)'),
 
+  // get the unique identifier
+  uniqueIdentifier: createQuery1<string>(
+    'string(//opf:package/@unique-identifier)',
+  ),
+
   // get the metadata element
   metadata: createQuery1<Element>('//opf:metadata[1]'),
 
@@ -491,6 +577,9 @@ const query = {
   modified: createQuery1<string>(
     'string(//opf:meta[@property="dcterms:modified"][1]/text())',
   ),
+
+  // get all identifiers
+  identifiers: createQuery<Element[]>('//opf:metadata/dc:identifier'),
 
   // get all titles
   titles: createQuery<Element[]>('//opf:metadata/dc:title'),
