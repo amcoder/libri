@@ -10,6 +10,7 @@ import { QueryClient } from '@tanstack/react-query'
 import { LibriService } from '~/lib/service'
 import { Header } from '~/components/header'
 import { Navigation } from '~/components/navigation'
+import { ServiceContext } from '~/components/service-context'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -33,10 +34,14 @@ export const Route = createRootRouteWithContext<{
 })
 
 function RootComponent() {
+  const service = Route.useRouteContext().service
+  console.log(service)
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
+    <ServiceContext.Provider value={service}>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    </ServiceContext.Provider>
   )
 }
 

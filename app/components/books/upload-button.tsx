@@ -1,11 +1,11 @@
 import { useRef } from 'react'
 import { Book } from '~/lib/types'
-import { Route } from '~/routes/__root'
+import { useLibriService } from '~/components/service-context'
 
 const VALID_EXTENSIONS = '.epub'
 
 export function UploadButton() {
-  const service = Route.useRouteContext().service
+  const service = useLibriService()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileInputChange = async (
@@ -16,7 +16,7 @@ export function UploadButton() {
 
     const operations: Promise<Book>[] = []
     for (const file of files) {
-      operations.push(service.books.uploadBook(file))
+      operations.push(service!.books.uploadBook(file))
     }
     const books = await Promise.all(operations)
     console.log(books)
