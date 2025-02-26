@@ -33,7 +33,12 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
         `INSERT INTO book (title, author, description, tags, publisher, published, language, coverPath, filePath)
        VALUES (@title, @author, @description, @tags, @publisher, @published, @language, @coverPath, @filePath)`,
       )
-      .run(book)
+      .run({
+        ...book,
+        tags: book.tags?.join(','),
+        coverPath: book.coverPath ?? null,
+        filePath: book.filePath ?? null,
+      })
 
     return getBook(result.lastInsertRowid as number)
   }
@@ -96,7 +101,8 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
     const set = keys.map((k) => `${k} = @${k}`).join(', ')
 
     console.log('updating keys', keys)
-    db.prepare(`UPDATE book SET ${set} WHERE id = @id`).run(book)
+    console.log(book)
+    db.prepare(`UPDATE book SET ${set} WHERE id = @id`).run({ ...book, id: id })
 
     return getBook(id)
   }
