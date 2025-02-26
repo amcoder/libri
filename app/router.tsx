@@ -2,9 +2,9 @@ import { createRouter as createTanStackRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 import { QueryClient } from '@tanstack/react-query'
 import { routerWithQueryClient } from '@tanstack/react-router-with-query'
-import { createLibriApi } from '~/lib/api'
+import { createLibriService } from '~/lib/service'
 
-const api = await createLibriApi()
+const service = await createLibriService()
 
 export function createRouter() {
   const queryClient = new QueryClient()
@@ -12,7 +12,7 @@ export function createRouter() {
   return routerWithQueryClient(
     createTanStackRouter({
       routeTree,
-      context: { queryClient, api },
+      context: { queryClient, service },
       scrollRestoration: true,
     }),
     queryClient,

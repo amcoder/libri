@@ -5,7 +5,7 @@ import { APIRoute } from './index'
 describe('GET /books', () => {
   const getBooks = vi.fn()
   const event = {
-    context: { api: { getBooks } },
+    context: { service: { books: { getBooks } } },
   } as unknown as H3Event<EventHandlerRequest>
 
   const handler = APIRoute.get!

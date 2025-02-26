@@ -2,26 +2,26 @@ import './index.css'
 import { createFileRoute } from '@tanstack/react-router'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { Suspense } from 'react'
-import { LibriApi } from '~/lib/api'
+import { LibriService } from '~/lib/service'
 import { BookSummary } from '~/components/books/book-summary'
 
-const booksQueryOptions = (api: LibriApi) =>
+const booksQueryOptions = ({ books }: LibriService) =>
   queryOptions({
     queryKey: ['books'],
-    queryFn: api.getBooks,
+    queryFn: books.getBooks,
     staleTime: 1000 * 60,
   })
 
 export const Route = createFileRoute('/books/')({
   component: Books,
   loader: ({ context }) => {
-    context.queryClient.prefetchQuery(booksQueryOptions(context.api))
+    context.queryClient.prefetchQuery(booksQueryOptions(context.service))
   },
 })
 
 export function Books() {
-  const { api } = Route.useRouteContext()
-  const { data: books, refetch } = useSuspenseQuery(booksQueryOptions(api))
+  const { service } = Route.useRouteContext()
+  const { data: books, refetch } = useSuspenseQuery(booksQueryOptions(service))
 
   const handleClick = () => {
     refetch()

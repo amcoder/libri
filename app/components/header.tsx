@@ -1,3 +1,4 @@
+import { UploadButton } from './books/upload-button'
 import './header.css'
 
 export function Header() {
@@ -16,6 +17,9 @@ export function Header() {
         </li>
         <li>
           <a href='#'>Help</a>
+        </li>
+        <li>
+          <UploadButton />
         </li>
       </menu>
     </header>

@@ -16,7 +16,10 @@ export function imageMetadata(buffer: Buffer): ImageMetadata | null {
       .split('')
       .map((c) => c.charCodeAt(0).toString(16))
       .join('')
-    return headerHex === buffer.subarray(0, header.length).toString('hex')
+    const bufHex = buffer.subarray(0, header.length).toString('hex')
+    console.log('headerHex', headerHex)
+    console.log('bufHex', bufHex)
+    return headerHex === bufHex
   }
 
   const headerLookup = {

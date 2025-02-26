@@ -66,10 +66,10 @@ export class Epub {
   /**
    * Create a new epub object
    *
-   * @param filePath path to the epub file
+   * @param file path to the epub file
    */
-  constructor(public readonly filePath: string) {
-    this.zip = new AdmZip(filePath)
+  constructor(public readonly file: string | Buffer) {
+    this.zip = new AdmZip(file)
 
     this.opfPath = this.getOpfPath()
     this.opfBasePath = path.dirname(this.opfPath)
@@ -165,7 +165,9 @@ export class Epub {
   /** get the authors */
   get authors(): string[] {
     return this.creators
-      .filter((c) => c.properties['role'].value === 'aut')
+      .filter(
+        (c) => !c.properties?.['role'] || c.properties['role']?.value === 'aut',
+      )
       .map((c) => c.value)
   }
 
@@ -234,10 +236,13 @@ export class Epub {
       const id = this.getCoverImageId()
       if (!id) return null
 
+      console.log('image id', id)
       const coverPath = query.itemPath(id, this.opf)
       if (!coverPath) return null
 
+      console.log('coverPath', coverPath)
       const zipPath = path.join(this.opfBasePath, coverPath)
+      console.log('zipPath', zipPath)
       return this.readBuffer(zipPath)
     }
 
@@ -275,7 +280,9 @@ export class Epub {
     this.zip.updateFile(this.opfPath, Buffer.from(xml, 'utf8'))
 
     // Write the zip file
-    filePath ??= this.filePath
+    if (!filePath && this.file instanceof Buffer) {
+      throw new Error('filePath is required when writing a buffer')
+    }
     this.zip.writeZip(filePath)
   }
 

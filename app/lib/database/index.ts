@@ -1,6 +1,5 @@
 import path from 'path'
 import SqliteDatabase, { Database } from 'better-sqlite3'
-import { createFakeData } from './fake-data'
 
 export function openDatabase(dataDir: string) {
   const dbFile = path.join(dataDir, 'libri.db')
@@ -9,7 +8,6 @@ export function openDatabase(dataDir: string) {
   db.pragma('journal_mode = WAL')
 
   migrateDatabase(db)
-  createFakeData(db)
 
   return db
 }

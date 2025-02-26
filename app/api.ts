@@ -6,7 +6,7 @@ import {
   H3Error,
   setResponseStatus,
 } from 'h3'
-import { createLibriApi } from '~/lib/api'
+import { createLibriService } from './lib/service'
 import { ApiFileRoute } from '~/lib/routing'
 import vinxiFileRoutes from 'vinxi/routes'
 
@@ -85,7 +85,7 @@ async function createH3Router() {
   return router
 }
 
-const api = await createLibriApi()
+const service = await createLibriService()
 
 let router: Router
 export default eventHandler(async (event) => {
@@ -94,13 +94,14 @@ export default eventHandler(async (event) => {
       router = await createH3Router()
     }
 
-    event.context.api = api
+    event.context.service = service
     return await router.handler(event)
   } catch (error) {
     if (error instanceof H3Error) {
       setResponseStatus(event, error.statusCode)
       return error.cause
     } else {
+      console.error(error)
       setResponseStatus(event, 500)
       return { status: 500, message: 'Internal Server Error' }
     }

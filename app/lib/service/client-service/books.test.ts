@@ -1,5 +1,5 @@
 import { vi, beforeEach, describe, expect, test } from 'vitest'
-import * as api from './api-web'
+import * as api from './books'
 
 describe('api-web', () => {
   const fetch = vi.fn()

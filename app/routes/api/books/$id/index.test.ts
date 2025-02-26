@@ -1,11 +1,11 @@
 import { vi, describe, expect, test, beforeEach } from 'vitest'
 import { createError, EventHandlerRequest, H3Event } from 'h3'
-import { APIRoute } from './$id'
+import { APIRoute } from './index'
 
 describe('GET /books/$id', () => {
   const getBook = vi.fn()
   const event = {
-    context: { api: { getBook } },
+    context: { service: { books: { getBook } } },
   } as unknown as H3Event<EventHandlerRequest>
 
   const handler = APIRoute.get!

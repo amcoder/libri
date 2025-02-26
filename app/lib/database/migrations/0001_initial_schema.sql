@@ -12,10 +12,12 @@ CREATE TABLE IF NOT EXISTS book (
   description TEXT,
   series TEXT,
   seriesNumber INTEGER,
-  genre TEXT,
-  isbn TEXT,
+  tags TEXT,
   publisher TEXT,
   published TEXT,
+  language TEXT,
+  coverPath TEXT,
+  filePath TEXT,
   createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 CREATE INDEX IF NOT EXISTS book_created_at ON book (createdAt);

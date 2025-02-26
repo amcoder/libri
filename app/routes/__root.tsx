@@ -7,13 +7,13 @@ import {
   Scripts,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
-import { LibriApi } from '~/lib/api'
+import { LibriService } from '~/lib/service'
 import { Header } from '~/components/header'
 import { Navigation } from '~/components/navigation'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
-  api: LibriApi
+  service: LibriService
 }>()({
   head: () => ({
     meta: [

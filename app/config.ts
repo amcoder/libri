@@ -1,6 +1,6 @@
 import fs from 'fs'
 
-type Config = {
+export type Config = {
   dataDir: string
   coverDir: string
   bookDir: string
