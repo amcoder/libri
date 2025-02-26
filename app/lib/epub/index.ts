@@ -394,7 +394,7 @@ export class Epub {
   private getCoverImageId(): string | null {
     return this.version === '2.0'
       ? query.coverIdv2(this.opf)
-      : query.coverIdv3(this.opf)
+      : query.coverIdv3(this.opf) || query.coverIdv2(this.opf)
   }
 
   // gets the Dublin Core properties for a given name (e.g. title)
