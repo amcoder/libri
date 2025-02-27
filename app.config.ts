@@ -1,7 +1,7 @@
 import { defineConfig } from '@tanstack/start/config'
 import vite from './vite.config'
 
-const config = await defineConfig({
+export default defineConfig({
   vite,
   server: {
     esbuild: {
@@ -16,7 +16,3 @@ const config = await defineConfig({
     routeFileIgnorePattern: '\\.test\\.tsx?',
   },
 })
-
-console.dir(config, { depth: null })
-
-export default config

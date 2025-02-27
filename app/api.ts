@@ -98,6 +98,7 @@ export default eventHandler(async (event) => {
     return await router.handler(event)
   } catch (error) {
     if (error instanceof H3Error) {
+      console.error(error)
       setResponseStatus(event, error.statusCode)
       return error.cause
     } else {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import path from 'path'
 import os from 'node:os'
 import fs from 'node:fs/promises'
@@ -27,9 +28,9 @@ describe('api-database', () => {
     return async () => await fs.rm(tmpdir, { recursive: true })
   })
 
-  describe('getBooks', () => {
+  describe('getBookSummaries', () => {
     test('returns a list of books', async () => {
-      const books = await service.getBooks()
+      const books = await service.getBookSummaries()
 
       expect(books).to.be.an('array')
       expect(books).to.have.length(0)
@@ -47,7 +48,7 @@ describe('api-database', () => {
     test('returns undefined if the book does not exist', async () => {
       const book = await service.getBook(1000)
 
-      expect(book).toBeUndefined()
+      expect(book).to.be.null
     })
   })
 })

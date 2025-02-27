@@ -8,7 +8,7 @@ import { BookSummary } from '~/components/books/book-summary'
 const booksQueryOptions = ({ books }: LibriService) =>
   queryOptions({
     queryKey: ['books'],
-    queryFn: books.getBooks,
+    queryFn: books.getBookSummaries,
     staleTime: 1000 * 60,
   })
 

@@ -1,16 +1,24 @@
-import { Book, NewBook } from '~/lib/types'
+import { BookAdd, BookDetails, BookEdit, BookSummary, Cover } from '~/lib/types'
 
-export async function getBooks(): Promise<Book[]> {
+export async function getBookSummaries(): Promise<BookSummary[]> {
   const result = await fetch('/api/books')
   return await result.json()
 }
 
-export async function getBook(id: number): Promise<Book> {
+export async function getBook(id: number): Promise<BookDetails> {
   const result = await fetch(`/api/books/${id}`)
   return await result.json()
 }
 
-export async function addBook(book: NewBook): Promise<Book> {
+export async function getCover(id: number): Promise<Cover | null> {
+  const result = await fetch(`/api/books/${id}/cover`)
+  return {
+    data: Buffer.from(await result.arrayBuffer()),
+    mediaType: result.headers.get('content-type')!,
+  }
+}
+
+export async function addBook(book: BookAdd): Promise<BookDetails> {
   const result = await fetch('/api/books', {
     method: 'POST',
     headers: {
@@ -21,7 +29,7 @@ export async function addBook(book: NewBook): Promise<Book> {
   return await result.json()
 }
 
-export async function uploadBook(data: Buffer | File): Promise<Book> {
+export async function uploadBook(data: Buffer | File): Promise<BookDetails> {
   const file = data as File
   const result = await fetch('/api/books/upload', {
     method: 'POST',
@@ -35,8 +43,8 @@ export async function uploadBook(data: Buffer | File): Promise<Book> {
 
 export async function patchBook(
   id: number,
-  book: Partial<Book>,
-): Promise<Book> {
+  book: Partial<BookEdit>,
+): Promise<BookDetails> {
   const result = await fetch(`/api/books/${id}`, {
     method: 'PATCH',
     headers: {
@@ -47,7 +55,10 @@ export async function patchBook(
   return await result.json()
 }
 
-export async function updateBook(id: number, book: Book): Promise<Book> {
+export async function updateBook(
+  id: number,
+  book: BookEdit,
+): Promise<BookDetails> {
   const result = await fetch(`/api/books/${id}`, {
     method: 'PUT',
     headers: {

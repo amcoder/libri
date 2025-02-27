@@ -27,7 +27,7 @@ function Book() {
   return (
     <>
       <Link to='/books'>Books</Link>
-      <BookDetails book={book} />
+      {(book && <BookDetails book={book} />) || <div>Book not found</div>}
     </>
   )
 }

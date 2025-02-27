@@ -1,15 +1,16 @@
 import { EventHandlerRequest, H3Event } from 'vinxi/http'
 import { loadConfig } from '~/config'
-import { Book, NewBook } from '~/lib/types'
+import { BookAdd, BookDetails, BookEdit, BookSummary, Cover } from '~/lib/types'
 
 export interface LibriService {
   books: {
-    getBooks(): Promise<Book[]>
-    getBook(id: number): Promise<Book>
-    addBook(book: NewBook): Promise<Book>
-    uploadBook(data: Buffer | File): Promise<Book>
-    patchBook(id: number, book: Partial<Book>): Promise<Book>
-    updateBook(id: number, book: Book): Promise<Book>
+    getBookSummaries(): Promise<BookSummary[]>
+    getBook(id: number): Promise<BookDetails | null>
+    getCover(id: number): Promise<Cover | null>
+    addBook(book: BookAdd): Promise<BookDetails>
+    uploadBook(data: Buffer | File): Promise<BookDetails>
+    patchBook(id: number, book: Partial<BookEdit>): Promise<BookDetails>
+    updateBook(id: number, book: BookEdit): Promise<BookDetails>
     deleteBook(id: number): Promise<void>
   }
   // users: {}

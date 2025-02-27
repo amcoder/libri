@@ -6,7 +6,9 @@ import { createBookService } from './books'
 export function createService(config: Config): LibriService {
   const db = openDatabase(config.dataDir)
 
-  return {
+  const service = {
     books: createBookService(db, config),
   }
+
+  return service
 }

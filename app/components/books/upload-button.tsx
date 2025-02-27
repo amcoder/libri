@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Book } from '~/lib/types'
+import { BookDetails } from '~/lib/types'
 import { useLibriService } from '~/components/service-context'
 
 const VALID_EXTENSIONS = '.epub'
@@ -14,7 +14,7 @@ export function UploadButton() {
     const files = e.target.files
     if (!files || files.length === 0) return
 
-    const operations: Promise<Book>[] = []
+    const operations: Promise<BookDetails>[] = []
     for (const file of files) {
       operations.push(service!.books.uploadBook(file))
     }

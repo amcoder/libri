@@ -7,7 +7,6 @@ import {
   setHeader,
 } from 'h3'
 import { getService } from '~/lib/service'
-import fs from 'fs'
 
 export const APIRoute = createApiFileRoute({
   get: eventHandler(async (event) => {
@@ -15,20 +14,14 @@ export const APIRoute = createApiFileRoute({
     const paramSchema = z.object({ id: z.coerce.number().int() })
     const { id } = await getValidatedRouterParams(event, paramSchema.parse)
 
-    const book = await books.getBook(id)
-    if (!book)
+    const cover = await books.getCover(id)
+    if (!cover?.data)
       throw createError({
         status: 404,
-        message: `Book with id '${event.context.params?.id}' not found`,
+        message: `Cover not found for book with id '${event.context.params?.id}'`,
       })
 
-    if (!book.coverPath)
-      throw createError({
-        status: 404,
-        message: `Book with id '${event.context.params?.id}' has no cover`,
-      })
-
-    setHeader(event, 'content-type', 'image/jpeg')
-    return fs.createReadStream(book.coverPath)
+    setHeader(event, 'content-type', cover.mediaType)
+    return cover.data
   }),
 })

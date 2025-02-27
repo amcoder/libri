@@ -13,11 +13,11 @@ describe('api-web', () => {
     }
   })
 
-  describe('getBooks', () => {
+  describe('getBookSummaries', () => {
     test('calls the api', async () => {
       fetch.mockResolvedValueOnce(new Response(JSON.stringify([{}])))
 
-      await api.getBooks()
+      await api.getBookSummaries()
 
       expect(fetch).toHaveBeenCalledOnce()
       expect(fetch).toHaveBeenCalledWith('/api/books')
@@ -27,7 +27,7 @@ describe('api-web', () => {
       const expected = [{ id: 1, title: 'Book 1', author: 'Author 1' }]
       fetch.mockResolvedValueOnce(new Response(JSON.stringify(expected)))
 
-      const books = await api.getBooks()
+      const books = await api.getBookSummaries()
 
       expect(books).to.be.an('array')
       expect(books).to.have.length(expected.length)
@@ -37,7 +37,7 @@ describe('api-web', () => {
     test('throws an error if the api throws an error', async () => {
       fetch.mockRejectedValueOnce(new Error('error'))
 
-      await expect(api.getBooks()).rejects.toThrow('error')
+      await expect(api.getBookSummaries()).rejects.toThrow('error')
     })
   })
 

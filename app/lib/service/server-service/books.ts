@@ -2,14 +2,22 @@ import path from 'path'
 import fs from 'fs'
 import BetterSqlite3 from 'better-sqlite3'
 import { Config } from '~/config'
-import { Book, NewBook } from '~/lib/types'
+import {
+  BookSummary,
+  BookDetails,
+  BookAdd,
+  BookEdit,
+  Author,
+  Cover,
+} from '~/lib/types'
 import { Epub } from '~/lib/epub'
 import { imageMetadata } from '~/lib/image'
 
 export function createBookService(db: BetterSqlite3.Database, config: Config) {
   return {
-    getBooks,
+    getBookSummaries,
     getBook,
+    getCover,
     addBook,
     uploadBook,
     patchBook,
@@ -17,105 +25,244 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
     deleteBook,
   }
 
-  function getBooks(): Promise<Book[]> {
-    const books = db.prepare('SELECT * FROM book').all() as Book[]
+  function getBookSummaries(): Promise<BookSummary[]> {
+    const rows = db
+      .prepare(
+        `
+          SELECT book.id, book.title, book.fileAs, json_group_array(author.name) as authors
+          FROM book
+            LEFT JOIN book_author ON book.id = book_author.bookId
+            LEFT JOIN author ON book_author.authorId = author.id
+          GROUP BY book.id
+          ORDER BY book.fileAs
+        `,
+      )
+      .all()
+
+    const books = rows.map(
+      (row: Record<string, unknown>): BookSummary => ({
+        id: row['id'] as number,
+        title: row['title'] as string,
+        fileAs: row['fileAs'] as string,
+        authors: JSON.parse(row['authors'] as string),
+        coverUrl: `/api/books/${row['id']}/cover`,
+      }),
+    )
+
     return Promise.resolve(books)
   }
 
-  function getBook(id: number): Promise<Book> {
-    const book = db.prepare('SELECT * FROM book WHERE id = ?').get(id) as Book
-    return Promise.resolve(book)
-  }
-
-  function addBook(book: NewBook): Promise<Book> {
-    const result = db
+  async function getBook(id: number): Promise<BookDetails | null> {
+    const row = db
       .prepare(
-        `INSERT INTO book (title, author, description, tags, publisher, published, language, coverPath, filePath)
-       VALUES (@title, @author, @description, @tags, @publisher, @published, @language, @coverPath, @filePath)`,
+        `
+        SELECT
+          book.id, book.title, book.fileAs,
+          json_group_array(author.name) as authors,
+          book.description, series.name as series, book.seriesIndex,
+          book.tags, book.publisher, book.publishedOn
+        FROM book
+          LEFT JOIN book_author ON book.id = book_author.bookId
+          LEFT JOIN author ON book_author.authorId = author.id
+          LEFT JOIN series ON book.seriesId = series.id
+        WHERE book.id = ?
+        GROUP BY book.id
+      `,
       )
-      .run({
-        ...book,
-        tags: book.tags?.join(','),
-        coverPath: book.coverPath ?? null,
-        filePath: book.filePath ?? null,
-      })
+      .get(id) as Record<string, unknown>
 
-    return getBook(result.lastInsertRowid as number)
-  }
+    if (!row) return null
 
-  async function uploadBook(data: Buffer | File): Promise<Book> {
-    const buffer =
-      data instanceof File ? Buffer.from(await data.arrayBuffer()) : data
-
-    console.log('uploading book')
-    const epub = new Epub(buffer)
-    console.log('loaded', epub.title.displayValue)
-
-    const newBook: NewBook = {
-      title: epub.title.displayValue,
-      author: epub.authors[0],
-      description: epub.description!,
-      tags: epub.subjects.map((s) => s.value),
-      publisher: epub.publisher!,
-      published: epub.publicationDate?.toUTCString(),
-      language: epub.primaryLanguage!,
+    const book: BookDetails = {
+      id: row['id'] as number,
+      title: row['title'] as string,
+      authors: JSON.parse(row['authors'] as string),
+      description: row['description'] as string,
+      series: row['series'] as string,
+      seriesIndex: row['seriesIndex'] as number,
+      tags: JSON.parse(row['tags'] as string),
+      publisher: row['publisher'] as string,
+      publishedOn: row['publishedOn'] as string,
+      coverUrl: `/api/books/${row['id']}/cover`,
     }
-
-    const book = await addBook(newBook)
-
-    if (epub.coverImage) {
-      const imageMeta = imageMetadata(epub.coverImage)
-      if (imageMeta) {
-        book.coverPath = path.join(
-          config.coverDir,
-          book.id.toString(),
-          `cover.${imageMeta.extension}`,
-        )
-        fs.mkdirSync(path.dirname(book.coverPath), { recursive: true })
-        fs.writeFileSync(book.coverPath, epub.coverImage)
-      }
-    }
-
-    book.filePath = path.join(
-      config.bookDir,
-      book.id.toString(),
-      `${book.title}.epub`,
-    )
-    fs.mkdirSync(path.dirname(book.filePath), { recursive: true })
-    epub.write(book.filePath)
-
-    patchBook(book.id, {
-      coverPath: book.coverPath,
-      filePath: book.filePath,
-    })
 
     return book
   }
 
-  function patchBook(id: number, book: Partial<Book>): Promise<Book> {
+  function getCover(id: number): Promise<Cover | null> {
+    const cover = db
+      .prepare(
+        'SELECT cover as data, coverMediaType as mediaType FROM book WHERE id = ?',
+      )
+      .get(id) as Cover | null
+    return Promise.resolve(cover)
+  }
+
+  async function addBook(book: BookAdd): Promise<BookDetails> {
+    const txn = db.transaction((book: BookAdd) => {
+      const result = db
+        .prepare(
+          `INSERT INTO book (title, fileAs, description, seriesId, seriesIndex, tags, publisher, publishedOn, cover, coverMediaType)
+                VALUES (@title, @fileAs, @description, @seriesId, @seriesIndex, json(@tags), @publisher, @publishedOn, @cover, @coverMediaType)`,
+        )
+        .run({
+          ...book,
+          seriesId: book.series?.id,
+          tags: JSON.stringify(book.tags),
+        })
+
+      const bookId = result.lastInsertRowid as number
+
+      book.authors.forEach(({ id: authorId }) => {
+        db.prepare(
+          `INSERT INTO book_author (bookId, authorId)
+           VALUES (@bookId, @authorId)`,
+        ).run({ bookId, authorId })
+      })
+
+      return bookId
+    })
+
+    const bookId = txn(book) as number
+
+    return (await getBook(bookId))!
+  }
+
+  async function uploadBook(data: Buffer | File): Promise<BookDetails> {
+    const buffer =
+      data instanceof File ? Buffer.from(await data.arrayBuffer()) : data
+
+    const epub = new Epub(buffer)
+
+    const authors = await Promise.all(
+      epub.creators
+        .filter(
+          (c) =>
+            !c.properties?.['role'] || c.properties['role']?.value === 'aut',
+        )
+        .map((c) => ({
+          name: c.value,
+          fileAs: c.properties?.['file-as']?.value,
+        }))
+        .map(async (author) => {
+          return await getOrCreateAuthor(author.name, author.fileAs)
+        }),
+    )
+
+    const newBook: BookAdd = {
+      title: epub.title.displayValue,
+      fileAs: epub.title.sortValue ?? epub.title.displayValue,
+      authors: authors,
+      description: epub.description!,
+      series: undefined,
+      seriesIndex: undefined,
+      tags: epub.subjects.map((s) => s.value),
+      publisher: epub.publisher!,
+      publishedOn: epub.publicationDate?.toUTCString(),
+    }
+
+    if (epub.coverImage) {
+      const imageMeta = imageMetadata(epub.coverImage)
+      if (imageMeta) {
+        newBook.cover = epub.coverImage
+        newBook.coverMediaType = imageMeta.mediaType
+      }
+    }
+
+    const book = await addBook(newBook)
+
+    const filePath = path.join(
+      config.bookDir,
+      book.id.toString(),
+      `${book.title}.epub`,
+    )
+    fs.mkdirSync(path.dirname(filePath), { recursive: true })
+    epub.write(filePath)
+
+    // patchBook(book.id, { filePath })
+
+    return book
+  }
+
+  async function patchBook(
+    id: number,
+    book: Partial<BookEdit>,
+  ): Promise<BookDetails> {
     const keys = Object.entries(book)
       .filter(([k, v]) => k !== 'id' && v !== undefined)
       .map(([k]) => k)
-    if (keys.length === 0) return Promise.resolve(getBook(id))
+    if (keys.length === 0) return (await getBook(id))!
 
     const set = keys.map((k) => `${k} = @${k}`).join(', ')
 
-    console.log('updating keys', keys)
-    console.log(book)
     db.prepare(`UPDATE book SET ${set} WHERE id = @id`).run({ ...book, id: id })
 
-    return getBook(id)
+    return (await getBook(id))!
   }
 
-  function updateBook(id: number, book: Book): Promise<Book> {
+  async function updateBook(id: number, book: BookEdit): Promise<BookDetails> {
     db.prepare(
-      `UPDATE book SET title = @title, author = @author, description = @description, series = @series, seriesNumber = @seriesNumber, tags = @tags, publisher = @publisher, published = @published, language = @language, coverPath = @coverPath, filePath = @filePath WHERE id = @id`,
+      `UPDATE book SET
+          title = @title,
+          fileAs = @fileAs,
+          authors = @authors,
+          description = @description,
+          seriesId = @seriesId,
+          seriesIndex = @seriesIndex,
+          tags = @tags,
+          publisher = @publisher,
+          publishedOn = @publishedOn,
+          cover = @cover,
+          coverMediaType = @coverMediaType,
+          filePath = @filePath
+        WHERE id = @id`,
     ).run(book)
-    return getBook(id)
+    return (await getBook(id))!
   }
 
   function deleteBook(id: number): Promise<void> {
     db.prepare(`DELETE FROM book WHERE id = ?`).run(id)
     return Promise.resolve()
+  }
+
+  function getAuthor(id: number): Promise<Author> {
+    const author = db
+      .prepare('SELECT id, name, fileAs FROM author WHERE id = ?')
+      .get(id) as Author
+    return Promise.resolve(author)
+  }
+
+  function findAuthor(name: string): Promise<Author | null> {
+    const author = db
+      .prepare('SELECT id, name, fileAs FROM author WHERE name = ?')
+      .get(name) as Author
+    return Promise.resolve(author)
+  }
+
+  async function getOrCreateAuthor(
+    name: string,
+    fileAs?: string,
+  ): Promise<Author> {
+    const author = await findAuthor(name)
+    if (author) return Promise.resolve(author)
+
+    if (!fileAs) {
+      const parts = name.split(' ').map((p) => p.trim())
+      const lastName = parts.pop()
+      const firstNames = parts.join(' ').trim()
+      fileAs = `${lastName}, ${firstNames}`
+    }
+
+    const result = db
+      .prepare(
+        `INSERT INTO author (name, fileAs)
+       VALUES (@name, @fileAs)`,
+      )
+      .run({
+        name,
+        fileAs,
+      })
+
+    return getAuthor(result.lastInsertRowid as number)
   }
 }

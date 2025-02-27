@@ -1,12 +1,10 @@
 import './book-summary.css'
 import { Link } from '@tanstack/react-router'
-import { Book } from '~/lib/types'
+import { BookSummary as BookSummaryType } from '~/lib/types'
 
-export function BookSummary({ book }: Readonly<{ book: Book }>) {
-  const coverUrl = book.coverPath
-    ? `/api/books/${book.id}/cover`
-    : '/cover-placeholder.png'
-
+export function BookSummary({ book }: Readonly<{ book: BookSummaryType }>) {
+  const coverUrl = book.coverUrl ?? '/cover-placeholder.png'
+  const authors = book.authors.join(' & ')
   return (
     <li className='book-summary'>
       <Link to={'/books/$id'} params={{ id: book.id.toString() }}>
@@ -14,7 +12,7 @@ export function BookSummary({ book }: Readonly<{ book: Book }>) {
         <span className='title'>{book.title}</span>
       </Link>{' '}
       <span className='author'>
-        <a href='#'>{book.author}</a>
+        <a href='#'>{authors}</a>
       </span>
     </li>
   )

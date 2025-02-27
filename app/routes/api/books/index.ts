@@ -5,6 +5,6 @@ import { getService } from '~/lib/service'
 export const APIRoute = createApiFileRoute({
   get: eventHandler(async (event) => {
     const books = getService(event).books
-    return await books.getBooks()
+    return await books.getBookSummaries()
   }),
 })

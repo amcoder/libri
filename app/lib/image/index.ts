@@ -17,8 +17,6 @@ export function imageMetadata(buffer: Buffer): ImageMetadata | null {
       .map((c) => c.charCodeAt(0).toString(16))
       .join('')
     const bufHex = buffer.subarray(0, header.length).toString('hex')
-    console.log('headerHex', headerHex)
-    console.log('bufHex', bufHex)
     return headerHex === bufHex
   }
 

@@ -236,13 +236,10 @@ export class Epub {
       const id = this.getCoverImageId()
       if (!id) return null
 
-      console.log('image id', id)
       const coverPath = query.itemPath(id, this.opf)
       if (!coverPath) return null
 
-      console.log('coverPath', coverPath)
       const zipPath = path.join(this.opfBasePath, coverPath)
-      console.log('zipPath', zipPath)
       return this.readBuffer(zipPath)
     }
 

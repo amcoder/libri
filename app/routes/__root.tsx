@@ -35,7 +35,6 @@ export const Route = createRootRouteWithContext<{
 
 function RootComponent() {
   const service = Route.useRouteContext().service
-  console.log(service)
   return (
     <ServiceContext.Provider value={service}>
       <RootDocument>
