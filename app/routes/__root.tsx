@@ -28,7 +28,10 @@ export const Route = createRootRouteWithContext<{
         title: 'Libri',
       },
     ],
-    links: [{ rel: 'stylesheet', href: '/app.css' }],
+    links: [
+      { rel: 'stylesheet', href: '/app.css' },
+      { rel: 'icon', href: '/favicon.png' },
+    ],
   }),
   component: RootComponent,
 })
