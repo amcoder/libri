@@ -111,10 +111,7 @@ header {
   gap: 0.25rem;
 
   img {
-    /* display: block; */
     width: 100%;
-    /* height: auto; */
-    background-color: pink;
   }
 
   .title {

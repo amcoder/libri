@@ -1,11 +1,12 @@
 import { BookDetails as BookDetailsType } from '~/lib/types'
 
 export function BookDetails({ book }: Readonly<{ book: BookDetailsType }>) {
+  const coverUrl = book.coverLargeUrl ?? '/cover-placeholder.png'
   const authors = book.authors.join(' & ')
   return (
     <>
       <h1>{book.title}</h1>
-      <img src={book.coverUrl} alt='' width='150px' height='200px' />
+      <img src={coverUrl} alt='' width='300px' height='400px' />
       <div className='book-details'>
         <div>Title: {book.title}</div>
         <div>By: {authors}</div>

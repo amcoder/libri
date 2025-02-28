@@ -15,7 +15,8 @@ export type BookSummary = {
   title: string
   fileAs: string
   authors: string[]
-  coverUrl?: string
+  coverLargeUrl?: string
+  coverSmallUrl?: string
 }
 
 export type BookDetails = {
@@ -28,7 +29,8 @@ export type BookDetails = {
   tags: string[]
   publisher?: string
   publishedOn?: string
-  coverUrl?: string
+  coverLargeUrl?: string
+  coverSmallUrl?: string
 }
 
 export type BookEdit = {
@@ -42,14 +44,19 @@ export type BookEdit = {
   tags: string[]
   publisher?: string
   publishedOn?: string
-  cover?: Buffer | null
-  coverMediaType?: string
-  filePath?: string
+  coverLargeId?: number
+  coverSmallId?: number
 }
 
 export type BookAdd = Omit<BookEdit, 'id'>
 
-export type Cover = {
-  data: Buffer
+export type BookFile = {
+  id: number
+  name: string
+  data?: Buffer
   mediaType: string
+  modifiedAt: string
+  etag: string
 }
+
+export type BookFileAdd = Omit<BookFile, 'id' | 'modifiedAt'>

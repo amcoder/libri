@@ -1,4 +1,11 @@
-import { BookAdd, BookDetails, BookEdit, BookSummary, Cover } from '~/lib/types'
+import {
+  BookAdd,
+  BookDetails,
+  BookEdit,
+  BookFile,
+  BookFileAdd,
+  BookSummary,
+} from '~/lib/types'
 
 export async function getBookSummaries(): Promise<BookSummary[]> {
   const result = await fetch('/api/books')
@@ -8,14 +15,6 @@ export async function getBookSummaries(): Promise<BookSummary[]> {
 export async function getBook(id: number): Promise<BookDetails> {
   const result = await fetch(`/api/books/${id}`)
   return await result.json()
-}
-
-export async function getCover(id: number): Promise<Cover | null> {
-  const result = await fetch(`/api/books/${id}/cover`)
-  return {
-    data: Buffer.from(await result.arrayBuffer()),
-    mediaType: result.headers.get('content-type')!,
-  }
 }
 
 export async function addBook(book: BookAdd): Promise<BookDetails> {
@@ -72,6 +71,32 @@ export async function updateBook(
 export async function deleteBook(id: number): Promise<void> {
   const result = await fetch(`/api/books/${id}`, {
     method: 'DELETE',
+  })
+  return await result.json()
+}
+
+export async function getFileMetadata(id: number): Promise<BookFile> {
+  const result = await fetch(`/api/books/${id}/file`)
+  return await result.json()
+}
+
+export async function getFileData(id: number): Promise<Buffer> {
+  const result = await fetch(`/api/books/${id}/file`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/octet-stream',
+    },
+  })
+  return Buffer.from(await result.arrayBuffer())
+}
+
+export async function addFile(file: BookFileAdd): Promise<BookFile> {
+  const result = await fetch('/api/books/file', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/octet-stream',
+    },
+    body: file.data,
   })
   return await result.json()
 }

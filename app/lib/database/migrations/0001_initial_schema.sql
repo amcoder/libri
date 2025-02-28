@@ -17,20 +17,11 @@ CREATE TABLE IF NOT EXISTS book (
   tags TEXT NOT NULL CHECK (json_valid(tags)),
   publisher TEXT,
   publishedOn TEXT,
-  cover BLOB,
-  coverMediaType TEXT,
+  coverLargeId INTEGER REFERENCES file (id) ON DELETE SET NULL,
+  coverSmallId INTEGER REFERENCES file (id) ON DELETE SET NULL,
   createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 CREATE INDEX IF NOT EXISTS book_created_at ON book (createdAt);
--- insert trigger
---   add missing authors to author table
---   add missing series to series table
---   add missing tags to tags table
--- update trigger
---   update authors
---   update series
---   update tags
--- how do i get the fileAs of an author?
 
 CREATE TABLE IF NOT EXISTS author (
   id INTEGER PRIMARY KEY,
@@ -54,3 +45,18 @@ CREATE TABLE IF NOT EXISTS series (
   createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 CREATE INDEX IF NOT EXISTS series_fileAs ON series (fileAs);
+
+CREATE TABLE IF NOT EXISTS file (
+  id INTEGER PRIMARY KEY,
+  mediaType TEXT NOT NULL,
+  name TEXT NOT NULL,
+  etag TEXT NOT NULL,
+  data BLOB NOT NULL,
+  createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+  modifiedAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+
+CREATE TRIGGER IF NOT EXISTS file_modifiedAt AFTER UPDATE ON file
+BEGIN
+  UPDATE file SET modifiedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = old.id;
+END;

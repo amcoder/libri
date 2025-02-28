@@ -1,6 +1,8 @@
 import path from 'path'
 import fs from 'fs'
 import BetterSqlite3 from 'better-sqlite3'
+import sharp from 'sharp'
+import etag from 'etag'
 import { Config } from '~/config'
 import {
   BookSummary,
@@ -8,7 +10,8 @@ import {
   BookAdd,
   BookEdit,
   Author,
-  Cover,
+  BookFile,
+  BookFileAdd,
 } from '~/lib/types'
 import { Epub } from '~/lib/epub'
 import { imageMetadata } from '~/lib/image'
@@ -17,19 +20,21 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
   return {
     getBookSummaries,
     getBook,
-    getCover,
     addBook,
     uploadBook,
     patchBook,
     updateBook,
     deleteBook,
+    getFileMetadata,
+    getFileData,
+    addFile,
   }
 
   function getBookSummaries(): Promise<BookSummary[]> {
     const rows = db
       .prepare(
         `
-          SELECT book.id, book.title, book.fileAs, json_group_array(author.name) as authors
+          SELECT book.id, book.title, book.fileAs, json_group_array(author.name) as authors, coverLargeId, coverSmallId
           FROM book
             LEFT JOIN book_author ON book.id = book_author.bookId
             LEFT JOIN author ON book_author.authorId = author.id
@@ -45,7 +50,12 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
         title: row['title'] as string,
         fileAs: row['fileAs'] as string,
         authors: JSON.parse(row['authors'] as string),
-        coverUrl: `/api/books/${row['id']}/cover`,
+        coverLargeUrl: row['coverLargeId']
+          ? `/api/file/${row['coverLargeId']}`
+          : undefined,
+        coverSmallUrl: row['coverSmallId']
+          ? `/api/file/${row['coverSmallId']}`
+          : undefined,
       }),
     )
 
@@ -60,7 +70,8 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
           book.id, book.title, book.fileAs,
           json_group_array(author.name) as authors,
           book.description, series.name as series, book.seriesIndex,
-          book.tags, book.publisher, book.publishedOn
+          book.tags, book.publisher, book.publishedOn,
+          book.coverLargeId, book.coverSmallId
         FROM book
           LEFT JOIN book_author ON book.id = book_author.bookId
           LEFT JOIN author ON book_author.authorId = author.id
@@ -83,27 +94,23 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
       tags: JSON.parse(row['tags'] as string),
       publisher: row['publisher'] as string,
       publishedOn: row['publishedOn'] as string,
-      coverUrl: `/api/books/${row['id']}/cover`,
+      coverLargeUrl: row['coverLargeId']
+        ? `/api/file/${row['coverLargeId']}`
+        : undefined,
+      coverSmallUrl: row['coverSmallId']
+        ? `/api/file/${row['coverSmallId']}`
+        : undefined,
     }
 
     return book
-  }
-
-  function getCover(id: number): Promise<Cover | null> {
-    const cover = db
-      .prepare(
-        'SELECT cover as data, coverMediaType as mediaType FROM book WHERE id = ?',
-      )
-      .get(id) as Cover | null
-    return Promise.resolve(cover)
   }
 
   async function addBook(book: BookAdd): Promise<BookDetails> {
     const txn = db.transaction((book: BookAdd) => {
       const result = db
         .prepare(
-          `INSERT INTO book (title, fileAs, description, seriesId, seriesIndex, tags, publisher, publishedOn, cover, coverMediaType)
-                VALUES (@title, @fileAs, @description, @seriesId, @seriesIndex, json(@tags), @publisher, @publishedOn, @cover, @coverMediaType)`,
+          `INSERT INTO book (title, fileAs, description, seriesId, seriesIndex, tags, publisher, publishedOn, coverLargeId, coverSmallId)
+                VALUES (@title, @fileAs, @description, @seriesId, @seriesIndex, json(@tags), @publisher, @publishedOn, @coverLargeId, @coverSmallId)`,
         )
         .run({
           ...book,
@@ -149,6 +156,30 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
         }),
     )
 
+    let coverSmallId: number | undefined = undefined
+    let coverLargeId: number | undefined = undefined
+
+    if (epub.coverImage) {
+      const imageMeta = imageMetadata(epub.coverImage)
+      if (imageMeta) {
+        const coverFile: BookFileAdd = {
+          name: `${epub.title.displayValue}-cover.${imageMeta.extension}`,
+          mediaType: imageMeta.mediaType,
+          data: epub.coverImage,
+          etag: etag(epub.coverImage),
+        }
+        coverLargeId = await addFile(coverFile).then((f) => f.id)
+
+        const coverThumbnailFile: BookFileAdd = {
+          name: `${epub.title.displayValue}-cover-thumbnail.${imageMeta.extension}`,
+          mediaType: imageMeta.mediaType,
+          data: await sharp(epub.coverImage).resize(150).toBuffer(),
+          etag: etag(await sharp(epub.coverImage).resize(150).toBuffer()),
+        }
+        coverSmallId = await addFile(coverThumbnailFile).then((f) => f.id)
+      }
+    }
+
     const newBook: BookAdd = {
       title: epub.title.displayValue,
       fileAs: epub.title.sortValue ?? epub.title.displayValue,
@@ -159,14 +190,8 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
       tags: epub.subjects.map((s) => s.value),
       publisher: epub.publisher!,
       publishedOn: epub.publicationDate?.toUTCString(),
-    }
-
-    if (epub.coverImage) {
-      const imageMeta = imageMetadata(epub.coverImage)
-      if (imageMeta) {
-        newBook.cover = epub.coverImage
-        newBook.coverMediaType = imageMeta.mediaType
-      }
+      coverLargeId,
+      coverSmallId,
     }
 
     const book = await addBook(newBook)
@@ -223,6 +248,36 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
   function deleteBook(id: number): Promise<void> {
     db.prepare(`DELETE FROM book WHERE id = ?`).run(id)
     return Promise.resolve()
+  }
+
+  function getFileMetadata(id: number): Promise<BookFile> {
+    const file = db
+      .prepare(
+        `SELECT id, name, mediaType, modifiedAt, etag
+        FROM file WHERE id = ?`,
+      )
+      .get(id) as BookFile
+    return Promise.resolve(file)
+  }
+
+  function getFileData(id: number): Promise<Buffer> {
+    const file = db
+      .prepare(`SELECT data FROM file WHERE id = ?`)
+      .pluck()
+      .get(id) as Buffer
+
+    return Promise.resolve(file)
+  }
+
+  function addFile(file: BookFileAdd): Promise<BookFile> {
+    const result = db
+      .prepare(
+        `INSERT INTO file (mediaType, name, etag, data)
+        VALUES (@mediaType, @name, @etag, @data)`,
+      )
+      .run(file)
+
+    return getFileMetadata(result.lastInsertRowid as number)
   }
 
   function getAuthor(id: number): Promise<Author> {
