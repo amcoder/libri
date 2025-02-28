@@ -23,6 +23,9 @@ export function Navigation() {
         <li>
           <a href='#'>About</a>
         </li>
+        <li>
+          <Link to='/books/upload'>Upload</Link>
+        </li>
       </menu>
     </nav>
   )

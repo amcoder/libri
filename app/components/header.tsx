@@ -1,5 +1,3 @@
-import { UploadButton } from './books/upload-button'
-
 export function Header() {
   return (
     <header id='main-header'>
@@ -16,9 +14,6 @@ export function Header() {
         </li>
         <li>
           <a href='#'>Help</a>
-        </li>
-        <li>
-          <UploadButton />
         </li>
       </menu>
     </header>

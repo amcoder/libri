@@ -23,6 +23,7 @@ export type BookDetails = {
   id: number
   title: string
   authors: string[]
+  fileAs: string
   description?: string
   series?: string
   seriesIndex?: number

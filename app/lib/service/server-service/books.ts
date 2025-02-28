@@ -87,6 +87,7 @@ export function createBookService(db: BetterSqlite3.Database, config: Config) {
     const book: BookDetails = {
       id: row['id'] as number,
       title: row['title'] as string,
+      fileAs: row['fileAs'] as string,
       authors: JSON.parse(row['authors'] as string),
       description: row['description'] as string,
       series: row['series'] as string,
