@@ -1,4 +1,3 @@
-import './__root.css'
 import type { ReactNode } from 'react'
 import {
   Outlet,
@@ -29,6 +28,7 @@ export const Route = createRootRouteWithContext<{
         title: 'Libri',
       },
     ],
+    links: [{ rel: 'stylesheet', href: '/app.css' }],
   }),
   component: RootComponent,
 })

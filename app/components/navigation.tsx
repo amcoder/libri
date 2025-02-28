@@ -1,4 +1,3 @@
-import './navigation.css'
 import { Link } from '@tanstack/react-router'
 
 export function Navigation() {

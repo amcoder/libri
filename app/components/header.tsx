@@ -1,5 +1,4 @@
 import { UploadButton } from './books/upload-button'
-import './header.css'
 
 export function Header() {
   return (

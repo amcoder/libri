@@ -1,4 +1,3 @@
-import './book-summary.css'
 import { Link } from '@tanstack/react-router'
 import { BookSummary as BookSummaryType } from '~/lib/types'
 
