@@ -109,12 +109,18 @@ header {
   width: 150px;
   flex-flow: column nowrap;
   gap: 0.25rem;
+  height: 17rem;
 
   img {
     width: 100%;
   }
 
   .title {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    test-overflow: ellipsis;
     font-weight: bold;
   }
 
