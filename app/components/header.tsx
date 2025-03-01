@@ -12,9 +12,6 @@ export function Header() {
         <li>
           <a href='#'>Settings</a>
         </li>
-        <li>
-          <a href='#'>Help</a>
-        </li>
       </menu>
     </header>
   )

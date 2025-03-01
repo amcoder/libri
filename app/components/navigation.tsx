@@ -4,27 +4,20 @@ export function Navigation() {
   return (
     <nav>
       <menu>
-        <li>
+        <li className='book-list'>
           <Link to='/books'>Books</Link>
         </li>
-        <li>
-          <Link to='/books/$id' params={{ id: '1' }}>
-            Book 1
-          </Link>
+        <li className='series-list'>
+          <Link to='/series'>Series</Link>
         </li>
-        <li>
-          <Link to='/books/$id' params={{ id: '2' }}>
-            Book 2
-          </Link>
+        <li className='author-list'>
+          <Link to='/authors'>Authors</Link>
         </li>
-        <li>
-          <a href='#'>Contact</a>
+        <li className='tag-list'>
+          <Link to='/tags'>Tags</Link>
         </li>
-        <li>
-          <a href='#'>About</a>
-        </li>
-        <li>
-          <Link to='/books/upload'>Upload</Link>
+        <li className='upload'>
+          <Link to='/upload'>Upload</Link>
         </li>
       </menu>
     </nav>

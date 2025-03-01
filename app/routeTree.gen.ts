@@ -11,12 +11,18 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as UploadImport } from './routes/upload'
 import { Route as IndexImport } from './routes/index'
 import { Route as BooksIndexImport } from './routes/books/index'
-import { Route as BooksUploadImport } from './routes/books/upload'
 import { Route as BooksIdImport } from './routes/books/$id'
 
 // Create/Update Routes
+
+const UploadRoute = UploadImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -27,12 +33,6 @@ const IndexRoute = IndexImport.update({
 const BooksIndexRoute = BooksIndexImport.update({
   id: '/books/',
   path: '/books/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const BooksUploadRoute = BooksUploadImport.update({
-  id: '/books/upload',
-  path: '/books/upload',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,18 +53,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/upload': {
+      id: '/upload'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof UploadImport
+      parentRoute: typeof rootRoute
+    }
     '/books/$id': {
       id: '/books/$id'
       path: '/books/$id'
       fullPath: '/books/$id'
       preLoaderRoute: typeof BooksIdImport
-      parentRoute: typeof rootRoute
-    }
-    '/books/upload': {
-      id: '/books/upload'
-      path: '/books/upload'
-      fullPath: '/books/upload'
-      preLoaderRoute: typeof BooksUploadImport
       parentRoute: typeof rootRoute
     }
     '/books/': {
@@ -81,46 +81,46 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/upload': typeof UploadRoute
   '/books/$id': typeof BooksIdRoute
-  '/books/upload': typeof BooksUploadRoute
   '/books': typeof BooksIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/upload': typeof UploadRoute
   '/books/$id': typeof BooksIdRoute
-  '/books/upload': typeof BooksUploadRoute
   '/books': typeof BooksIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/upload': typeof UploadRoute
   '/books/$id': typeof BooksIdRoute
-  '/books/upload': typeof BooksUploadRoute
   '/books/': typeof BooksIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/books/$id' | '/books/upload' | '/books'
+  fullPaths: '/' | '/upload' | '/books/$id' | '/books'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/books/$id' | '/books/upload' | '/books'
-  id: '__root__' | '/' | '/books/$id' | '/books/upload' | '/books/'
+  to: '/' | '/upload' | '/books/$id' | '/books'
+  id: '__root__' | '/' | '/upload' | '/books/$id' | '/books/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  UploadRoute: typeof UploadRoute
   BooksIdRoute: typeof BooksIdRoute
-  BooksUploadRoute: typeof BooksUploadRoute
   BooksIndexRoute: typeof BooksIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  UploadRoute: UploadRoute,
   BooksIdRoute: BooksIdRoute,
-  BooksUploadRoute: BooksUploadRoute,
   BooksIndexRoute: BooksIndexRoute,
 }
 
@@ -135,19 +135,19 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/upload",
         "/books/$id",
-        "/books/upload",
         "/books/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
+    "/upload": {
+      "filePath": "upload.tsx"
+    },
     "/books/$id": {
       "filePath": "books/$id.tsx"
-    },
-    "/books/upload": {
-      "filePath": "books/upload.tsx"
     },
     "/books/": {
       "filePath": "books/index.tsx"

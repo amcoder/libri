@@ -5,13 +5,14 @@ import { BookDetails } from '~/lib/types'
 
 const VALID_EXTENSIONS = '.epub'
 
-export const Route = createFileRoute('/books/upload')({
+export const Route = createFileRoute('/upload')({
   component: Upload,
 })
 
 export function Upload() {
   const { service } = Route.useRouteContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [dragOver, setDragOver] = useState(false)
   const [books, setBooks] = useState<BookDetails[]>([])
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -39,7 +40,7 @@ export function Upload() {
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
-    e.currentTarget.style.backgroundColor = 'lightgray'
+    setDragOver(false)
 
     const files = e.dataTransfer?.files
     await uploadFiles(files)
@@ -47,12 +48,12 @@ export function Upload() {
 
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
-    e.currentTarget.style.backgroundColor = 'lightblue'
+    setDragOver(true)
   }
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
-    e.currentTarget.style.backgroundColor = 'lightgray'
+    setDragOver(false)
   }
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -75,7 +76,7 @@ export function Upload() {
       {(!uploading && (
         <>
           <div
-            className='upload-target'
+            className={`upload-target ${dragOver ? 'drag-over' : ''}`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}

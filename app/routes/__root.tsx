@@ -34,6 +34,7 @@ export const Route = createRootRouteWithContext<{
     ],
   }),
   component: RootComponent,
+  notFoundComponent: NotFound,
 })
 
 function RootComponent() {
@@ -63,4 +64,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </body>
     </html>
   )
+}
+
+function NotFound() {
+  return <h1>Not found</h1>
 }

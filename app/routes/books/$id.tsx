@@ -7,7 +7,7 @@ const bookQueryOptions = ({ books }: LibriService, id: number) =>
   queryOptions({
     queryKey: ['book', id],
     queryFn: () => books.getBook(id),
-    staleTime: Infinity,
+    staleTime: 60 * 1000,
   })
 
 export const Route = createFileRoute('/books/$id')({

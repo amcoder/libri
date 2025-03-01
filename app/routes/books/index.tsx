@@ -20,15 +20,10 @@ export const Route = createFileRoute('/books/')({
 
 export function Books() {
   const { service } = Route.useRouteContext()
-  const { data: books, refetch } = useSuspenseQuery(booksQueryOptions(service))
-
-  const handleClick = () => {
-    refetch()
-  }
+  const { data: books } = useSuspenseQuery(booksQueryOptions(service))
 
   return (
     <>
-      <button onClick={handleClick}>Refresh books</button>
       <Suspense fallback='Loading books...'>
         <ul className='books'>
           {books.map((book) => (

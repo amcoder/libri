@@ -1,3 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+IT+Moderna:wght@100..400&display=swap');
+@import './fontawesome/css/all.min.css';
+@import './fontawesome/css/v5-font-face.min.css';
+
+:root {
+  --base: #eff1f5;
+  --mantle: #e6e9ef;
+  --crust: #dce0e8;
+  --surface0: #ccd0da;
+  --surface1: #bcc0cc;
+  --surface2: #acb0be;
+  --overlay0: #9ca0b0;
+  --overlay1: #8c8fa1;
+  --overlay2: #7c7f93;
+  --subtext0: #6c6f85;
+  --subtext1: #5c5f77;
+  --text: #4c4f69;
+  --lavender: #7287fd;
+  --blue: #1e66f5;
+  --sapphire: #209fb5;
+  --sky: #04a5e5;
+  --teal: #179299;
+  --green: #40a02b;
+  --yellow: #df8e1d;
+  --peach: #fe640b;
+  --maroon: #e64553;
+  --red: #d20f39;
+  --mauve: #8839ef;
+  --pink: #ea76cb;
+  --flamingo: #dd7878;
+  --rosewater: #dc8a78;
+
+  --background-pane-color: var(--base);
+  --secondary-pane-color0: var(--crust);
+  --secondary-pane-color1: var(--mantle);
+  --surface-color0: var(--surface0);
+  --surface-color1: var(--surface1);
+  --surface-color2: var(--surface2);
+  --overlay-color0: var(--overlay0);
+  --overlay-color1: var(--overlay1);
+  --overlay-color2: var(--overlay2);
+
+  --text-color: var(--text);
+  --headline-color: var(--text);
+  --subtext-color0: var(--subtext0);
+  --subtext-color1: var(--subtext1);
+  --subtle-color: var(--overlay1);
+
+  --link-color: var(--blue);
+  --link-hover-color: var(--peach);
+  --accent-color: var(--sapphire);
+  --success-color: var(--green);
+  --warning-color: var(--yellow);
+  --error-color: var(--red);
+
+  --tag-color: var(--blue);
+  --selection-background-color: rgb(from var(--overlay2) r g b / 0.25);
+  --cursor-color: var(--rosewater);
+}
+
 /** routes/__root.css */
 * {
   box-sizing: border-box;
@@ -20,6 +80,43 @@ body {
   display: flex;
   flex-direction: column;
   padding: 0;
+  background-color: var(--background-pane-color);
+  color: var(--text-color);
+  caret-color: var(--cursor-color);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica,
+    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+::selection {
+  background-color: var(--selection-background-color);
+  color: var(--text-color);
+}
+
+::spelling-error {
+  text-decoration: underline wavy var(--error-color);
+}
+
+h2,
+h3,
+h4,
+label {
+  color: var(--subtext-color0);
+}
+
+h5,
+h6 {
+  color: var(--subtext-color1);
 }
 
 #main-container {
@@ -50,36 +147,84 @@ body {
 /** components/navigation.css */
 #main-container {
   nav {
-    background-color: #ccc;
-    padding: 1rem;
+    background-color: var(--secondary-pane-color0);
+
     min-width: 10rem;
     overflow: auto;
 
     menu {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
       list-style: none;
       padding: 0;
       margin: 0;
+
+      li {
+        font-size: 1.25rem;
+
+        a {
+          display: block;
+          padding: 0.5rem 1rem;
+          text-decoration: none;
+          color: var(--text-color);
+          &:hover,
+          &.active {
+            background-color: var(--background-pane-color);
+          }
+
+          &:hover {
+            color: var(--link-hover-color);
+          }
+
+          &::before {
+            font-family: 'Font Awesome 5 Free';
+            font-weight: bold;
+            margin-right: 0.5rem;
+          }
+        }
+        &.book-list a::before {
+          content: '\f02d';
+        }
+        &.series-list a::before {
+          content: '\f0cb';
+        }
+        &.author-list a::before {
+          content: '\f007';
+        }
+        &.tag-list a::before {
+          content: '\f02c';
+        }
+        &.upload a::before {
+          content: '\f093';
+        }
+      }
     }
   }
 }
 
 /** components/header.css */
 header {
-  background-color: #eee;
-  padding: 1rem;
+  background-color: var(--secondary-pane-color0);
+
+  padding: 0rem 1rem;
   flex: 0;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   display: flex;
 
   h1 {
     margin: 0;
     padding: 0;
-    font-size: 1rem;
+    font-size: 2rem;
     flex: 1;
+    font-family: 'Playwrite IT Moderna', serif;
+    color: var(--peach);
+
+    &::before {
+      font-family: 'Font Awesome 5 Free';
+      content: '\f518';
+      margin-right: 0.5rem;
+    }
   }
 
   form {
@@ -109,7 +254,7 @@ header {
   width: 150px;
   flex-flow: column nowrap;
   gap: 0.25rem;
-  height: 17rem;
+  /* min-height: 17rem; */
 
   img {
     width: 100%;
@@ -120,13 +265,21 @@ header {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    test-overflow: ellipsis;
+    text-overflow: ellipsis;
     font-weight: bold;
   }
 
   .author {
     font-size: 0.75rem;
     font-weight: normal;
+  }
+
+  & > a {
+    text-decoration: none;
+    color: var(--text-color);
+    &:hover {
+      color: var(--link-hover-color);
+    }
   }
 }
 
@@ -136,12 +289,17 @@ header {
   height: 10rem;
   line-height: 10rem;
   overflow: hidden;
-  background-color: lightgray;
-  color: gray;
+  background-color: var(--secondary-pane-color0);
+  color: var(--subtext0);
   font-size: 1.75rem;
   font-weight: bold;
   text-align: center;
   vertical-align: middle;
+
+  &.drag-over {
+    background-color: var(--overlay0);
+    color: var(--text-color);
+  }
 }
 
 .upload-progress {
@@ -149,8 +307,8 @@ header {
   height: 10rem;
   line-height: 10rem;
   overflow: hidden;
-  background-color: lightgray;
-  color: gray;
+  background-color: var(--secondary-pane-color1);
+  color: var(--subtext0);
   font-size: 1.75rem;
   font-weight: bold;
   text-align: center;
