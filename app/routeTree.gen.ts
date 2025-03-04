@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as UploadImport } from './routes/upload'
+import { Route as StyleGuideImport } from './routes/style-guide'
 import { Route as IndexImport } from './routes/index'
 import { Route as BooksIndexImport } from './routes/books/index'
 import { Route as BooksIdImport } from './routes/books/$id'
@@ -21,6 +22,12 @@ import { Route as BooksIdImport } from './routes/books/$id'
 const UploadRoute = UploadImport.update({
   id: '/upload',
   path: '/upload',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const StyleGuideRoute = StyleGuideImport.update({
+  id: '/style-guide',
+  path: '/style-guide',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,6 +60,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/style-guide': {
+      id: '/style-guide'
+      path: '/style-guide'
+      fullPath: '/style-guide'
+      preLoaderRoute: typeof StyleGuideImport
+      parentRoute: typeof rootRoute
+    }
     '/upload': {
       id: '/upload'
       path: '/upload'
@@ -81,6 +95,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/style-guide': typeof StyleGuideRoute
   '/upload': typeof UploadRoute
   '/books/$id': typeof BooksIdRoute
   '/books': typeof BooksIndexRoute
@@ -88,6 +103,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/style-guide': typeof StyleGuideRoute
   '/upload': typeof UploadRoute
   '/books/$id': typeof BooksIdRoute
   '/books': typeof BooksIndexRoute
@@ -96,6 +112,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/style-guide': typeof StyleGuideRoute
   '/upload': typeof UploadRoute
   '/books/$id': typeof BooksIdRoute
   '/books/': typeof BooksIndexRoute
@@ -103,15 +120,16 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upload' | '/books/$id' | '/books'
+  fullPaths: '/' | '/style-guide' | '/upload' | '/books/$id' | '/books'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upload' | '/books/$id' | '/books'
-  id: '__root__' | '/' | '/upload' | '/books/$id' | '/books/'
+  to: '/' | '/style-guide' | '/upload' | '/books/$id' | '/books'
+  id: '__root__' | '/' | '/style-guide' | '/upload' | '/books/$id' | '/books/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  StyleGuideRoute: typeof StyleGuideRoute
   UploadRoute: typeof UploadRoute
   BooksIdRoute: typeof BooksIdRoute
   BooksIndexRoute: typeof BooksIndexRoute
@@ -119,6 +137,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  StyleGuideRoute: StyleGuideRoute,
   UploadRoute: UploadRoute,
   BooksIdRoute: BooksIdRoute,
   BooksIndexRoute: BooksIndexRoute,
@@ -135,6 +154,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/style-guide",
         "/upload",
         "/books/$id",
         "/books/"
@@ -142,6 +162,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/style-guide": {
+      "filePath": "style-guide.tsx"
     },
     "/upload": {
       "filePath": "upload.tsx"

@@ -19,6 +19,9 @@ export function Navigation() {
         <li className='upload'>
           <Link to='/upload'>Upload</Link>
         </li>
+        <li className='style-guide'>
+          <Link to='/style-guide'>Style Guide</Link>
+        </li>
       </menu>
     </nav>
   )
