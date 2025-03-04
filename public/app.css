@@ -200,21 +200,6 @@ textarea {
     outline: 1px solid var(--accent-color);
   }
 
-  &::-webkit-calendar-picker-indicator {
-    background-image: none;
-    mask: url('calendar.svg') no-repeat center/70%;
-    background-color: var(--subtext-color1);
-  }
-
-  &::-webkit-calendar-picker-indicator:focus {
-    background-color: var(--accent-color);
-    outline: none;
-  }
-
-  &::-webkit-calendar-picker-indicator:hover {
-    background-color: var(--text-color);
-  }
-
   &::-webkit-datetime-edit-month-field:focus,
   &::-webkit-datetime-edit-day-field:focus,
   &::-webkit-datetime-edit-year-field:focus,
